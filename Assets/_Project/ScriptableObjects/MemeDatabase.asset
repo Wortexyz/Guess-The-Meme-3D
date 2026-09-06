@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d31a606538da064d8d887e5adfb6ce5, type: 3}
+  m_Name: MemeDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::MemeDatabase
+  memes:
+  - {fileID: 11400000, guid: b9496ae351b99d042b0ba606d782692d, type: 2}
+  - {fileID: 11400000, guid: a7add18f8a9a739408d3cba7339d9153, type: 2}
+  - {fileID: 11400000, guid: 704558230821f1e4d913ab3050ddecbf, type: 2}
+  - {fileID: 11400000, guid: 5be7b8fd4305219449a4c1027acdecef, type: 2}
+  - {fileID: 11400000, guid: 4793604e8bd029445bb388433119c11c, type: 2}

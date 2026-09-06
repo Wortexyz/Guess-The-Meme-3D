@@ -10,7 +10,6 @@ public class PlayerController : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float rotationSpeed = 12f;
 
     [Header("Gravity")]
     [SerializeField] private float gravity = -20f;
@@ -46,10 +45,8 @@ public class PlayerController : MonoBehaviour
             cameraForward * input.y +
             cameraRight * input.x;
 
-        movementDirection = Vector3.ClampMagnitude(
-            movementDirection,
-            1f
-        );
+        movementDirection =
+            Vector3.ClampMagnitude(movementDirection, 1f);
 
         // Gravity.
         if (characterController.isGrounded)
@@ -69,13 +66,10 @@ public class PlayerController : MonoBehaviour
         characterController.Move(
             velocity * Time.deltaTime
         );
-
-        RotatePlayer(movementDirection);
     }
 
     private Vector2 GetMovementInput()
     {
-        // Asset Store joystick.
         if (joystick != null)
         {
             return new Vector2(
@@ -84,7 +78,7 @@ public class PlayerController : MonoBehaviour
             );
         }
 
-        // Keyboard fallback for Editor.
+        // Keyboard fallback for Editor testing.
         if (Keyboard.current == null)
             return Vector2.zero;
 
@@ -115,20 +109,5 @@ public class PlayerController : MonoBehaviour
         }
 
         return Vector2.ClampMagnitude(input, 1f);
-    }
-
-    private void RotatePlayer(Vector3 movementDirection)
-    {
-        if (movementDirection.sqrMagnitude < 0.01f)
-            return;
-
-        Quaternion targetRotation =
-            Quaternion.LookRotation(movementDirection);
-
-        transform.rotation = Quaternion.Slerp(
-            transform.rotation,
-            targetRotation,
-            rotationSpeed * Time.deltaTime
-        );
     }
 }
