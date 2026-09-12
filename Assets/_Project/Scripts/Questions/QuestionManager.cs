@@ -6,9 +6,6 @@ public class QuestionManager : MonoBehaviour
     [Header("Database")]
     [SerializeField] private MemeDatabase memeDatabase;
 
-    [Header("Doors")]
-    [SerializeField] private Door[] doors;
-
     [Header("Category")]
     [SerializeField] private MemeCategory category =
         MemeCategory.All;
@@ -18,8 +15,6 @@ public class QuestionManager : MonoBehaviour
 
     private QuestionGenerator questionGenerator;
 
-    private Question currentQuestion;
-
     private int score;
 
     private void Awake()
@@ -27,135 +22,139 @@ public class QuestionManager : MonoBehaviour
         questionGenerator = new QuestionGenerator();
     }
 
-    private void Start()
+    // Creates a new question for a room.
+    public Question CreateQuestion()
     {
-        GenerateNextQuestion();
-    }
+        if (memeDatabase == null)
+        {
+            Debug.LogError(
+                "QuestionManager: MemeDatabase is not assigned."
+            );
 
-    private void GenerateNextQuestion()
-    {
+            return null;
+        }
+
         List<MemeData> availableMemes =
             memeDatabase.GetEnabledMemes(category);
 
-        if (availableMemes.Count < 3)
+        if (availableMemes == null ||
+            availableMemes.Count < 3)
         {
             Debug.LogError(
                 "QuestionManager: " +
-                "At least 3 enabled memes are required."
+                "At least 3 unique enabled memes are required."
             );
 
-            return;
+            return null;
         }
 
-        currentQuestion =
+        Question question =
             questionGenerator.GenerateQuestion(
                 availableMemes
             );
 
-        if (currentQuestion == null)
-            return;
-
-        AssignQuestionToDoors();
-
-        PlayQuestionAudio();
-
-        Debug.Log(
-            "QUESTION: " +
-            currentQuestion.CorrectAnswer.displayName
-        );
-    }
-
-    private void AssignQuestionToDoors()
-    {
-        if (doors == null || doors.Length != 3)
+        if (question == null)
         {
             Debug.LogError(
-                "QuestionManager requires exactly 3 doors."
+                "QuestionManager: Failed to create question."
             );
 
-            return;
+            return null;
         }
 
-        for (int i = 0; i < doors.Length; i++)
-        {
-            doors[i].Setup(
-                currentQuestion.Choices[i],
-                this
-            );
+        Debug.Log(
+            "QUESTION CREATED: " +
+            question.CorrectAnswer.displayName
+        );
 
-            Debug.Log(
-                "Door " +
-                (i + 1) +
-                ": " +
-                currentQuestion.Choices[i].displayName
-            );
-        }
+        return question;
     }
 
-    private void PlayQuestionAudio()
+    // Called by the Room's QuestionTrigger.
+    public void StartQuestionAudio(Question question)
     {
+        if (question == null)
+            return;
+
         if (memeAudioSource == null)
         {
             Debug.LogWarning(
-                "No meme AudioSource assigned."
+                "QuestionManager: No AudioSource assigned."
             );
 
             return;
         }
 
         AudioClip clip =
-            currentQuestion.CorrectAnswer.audio;
+            question.CorrectAnswer.audio;
 
         if (clip == null)
         {
             Debug.LogWarning(
-                "Correct meme has no audio clip."
+                "QuestionManager: Question has no audio clip."
             );
 
             return;
         }
 
+        // Prevent overlap.
         memeAudioSource.Stop();
+
+        // Always start from the beginning.
         memeAudioSource.clip = clip;
+        memeAudioSource.time = 0f;
+
         memeAudioSource.Play();
     }
 
-    public void DoorSelected(Door selectedDoor)
+    public void StopQuestionAudio()
     {
-        if (currentQuestion == null)
+        if (memeAudioSource == null)
             return;
 
-        if (selectedDoor.AssignedMeme ==
-            currentQuestion.CorrectAnswer)
-        {
-            CorrectAnswer();
-        }
-        else
-        {
-            WrongAnswer(selectedDoor);
-        }
+        memeAudioSource.Stop();
     }
 
-   private void CorrectAnswer()
-{
-    score++;
+    // ---------------------------------------------------------
+    // SCORE
+    // ---------------------------------------------------------
 
-    Debug.Log(
-        "CORRECT! Score = " +
-        score
-    );
-
-    // Later:
-    // Door opens
-    // Player enters next room
-    // RoomManager generates next question
-}
-
-    private void WrongAnswer(Door selectedDoor)
+    public void CorrectAnswer()
     {
+        score++;
+
         Debug.Log(
-            "WRONG! You selected: " +
-            selectedDoor.AssignedMeme.displayName
+            "CORRECT! Score = " +
+            score
         );
+    }
+
+    public void WrongAnswer()
+    {
+        Debug.Log("WRONG!");
+    }
+
+    public int GetScore()
+    {
+        return score;
+    }
+
+    public void ResetScore()
+    {
+        score = 0;
+    }
+
+    // ---------------------------------------------------------
+    // CATEGORY
+    // ---------------------------------------------------------
+
+    public void SetCategory(MemeCategory newCategory)
+    {
+        category = newCategory;
+    }
+
+    public MemeCategory GetCategory()
+    {
+        return category;
     }
 }

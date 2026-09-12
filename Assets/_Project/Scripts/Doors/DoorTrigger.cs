@@ -9,6 +9,16 @@ public class DoorTrigger : MonoBehaviour
         if (!other.CompareTag("Player"))
             return;
 
+        if (door == null)
+        {
+            Debug.LogError(
+                "DoorTrigger: Door reference is missing on " +
+                gameObject.name
+            );
+
+            return;
+        }
+
         door.PlayerEnteredDoor();
     }
 }
